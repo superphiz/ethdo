@@ -24,13 +24,14 @@ import (
 	"time"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/prysmaticlabs/go-ssz"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	types "github.com/wealdtech/go-eth2-types"
+	e2types "github.com/wealdtech/go-eth2-types/v2"
 	"google.golang.org/grpc"
 
 	wallet "github.com/wealdtech/go-eth2-wallet"
-	wtypes "github.com/wealdtech/go-eth2-wallet-types"
+	wtypes "github.com/wealdtech/go-eth2-wallet-types/v2"
 )
 
 var cfgFile string
@@ -307,13 +308,13 @@ func accountsFromPath(path string) ([]wtypes.Account, error) {
 	return accounts, nil
 }
 
-// sign signs data in a domain.
-func sign(account wtypes.Account, data []byte, domain uint64) (types.Signature, error) {
+// sign signs data.  The data should (but does not have to) be a signing root.
+func sign(account wtypes.Account, data []byte) (e2types.Signature, error) {
 	if !account.IsUnlocked() {
 		return nil, errors.New("account must be unlocked to sign")
 	}
 
-	return account.Sign(data, domain)
+	return account.Sign(data)
 }
 
 // addTransactionFlags adds flags used in all transactions.
@@ -341,4 +342,22 @@ func connect() error {
 	var err error
 	eth2GRPCConn, err = grpc.DialContext(ctx, connection, opts...)
 	return err
+}
+
+func generateSigningRoot(data interface{}, domain []byte) ([32]byte, error) {
+	objRoot, err := ssz.HashTreeRoot(data)
+	if err != nil {
+		return [32]byte{}, err
+	}
+
+	signingData := struct {
+		Hash   []byte `ssz-size:"32"`
+		Domain []byte `ssz-size:"32"`
+	}{
+		Hash:   objRoot[:],
+		Domain: domain,
+	}
+	signingRoot, err := ssz.HashTreeRoot(signingData)
+	outputIf(debug, fmt.Sprintf("Signing root is %x", signingRoot))
+	return signingRoot, err
 }

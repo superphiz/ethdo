@@ -18,7 +18,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	types "github.com/wealdtech/go-eth2-wallet-types"
+	wtypes "github.com/wealdtech/go-eth2-wallet-types/v2"
 )
 
 var walletExportPassphrase string
@@ -38,10 +38,10 @@ In quiet mode this will return 0 if the wallet is able to be exported, otherwise
 		wallet, err := walletFromPath(walletWallet)
 		errCheck(err, "Failed to access wallet")
 
-		_, ok := wallet.(types.WalletExporter)
+		_, ok := wallet.(wtypes.WalletExporter)
 		assert(ok, fmt.Sprintf("wallets of type %q do not allow exporting accounts", wallet.Type()))
 
-		exportData, err := wallet.(types.WalletExporter).Export([]byte(walletExportPassphrase))
+		exportData, err := wallet.(wtypes.WalletExporter).Export([]byte(walletExportPassphrase))
 		errCheck(err, "Failed to export wallet")
 
 		outputIf(!quiet, fmt.Sprintf("0x%x", exportData))

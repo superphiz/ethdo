@@ -20,7 +20,7 @@ import (
 
 	"github.com/prysmaticlabs/go-ssz"
 	"github.com/spf13/cobra"
-	types "github.com/wealdtech/go-eth2-types"
+	e2types "github.com/wealdtech/go-eth2-types/v2"
 	util "github.com/wealdtech/go-eth2-util"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
@@ -85,13 +85,12 @@ In quiet mode this will return 0 if the the data can be generated correctly, oth
 				WithdrawalCredentials: withdrawalCredentials,
 				Value:                 val,
 			}
-			signingRoot, err := ssz.HashTreeRoot(depositData)
+			signingRoot, err := generateSigningRoot(depositData, e2types.Domain(e2types.DomainDeposit, e2types.ZeroForkVersion, e2types.ZeroGenesisRoot))
 			errCheck(err, "Failed to generate deposit data signing root")
-			outputIf(debug, fmt.Sprintf("Signing root is %x", signingRoot))
-			domain := types.Domain(types.DomainDeposit, []byte{0, 0, 0, 0})
+
 			err = validatorAccount.Unlock([]byte(rootAccountPassphrase))
 			errCheck(err, "Failed to unlock validator account")
-			signature, err := validatorAccount.Sign(signingRoot[:], domain)
+			signature, err := validatorAccount.Sign(signingRoot[:])
 			validatorAccount.Lock()
 			errCheck(err, "Failed to sign deposit data signing root")
 

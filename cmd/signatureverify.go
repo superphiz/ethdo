@@ -18,7 +18,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/go-bytesutil"
-	types "github.com/wealdtech/go-eth2-types"
+	e2types "github.com/wealdtech/go-eth2-types/v2"
 )
 
 var signatureVerifySignature string
@@ -37,21 +37,15 @@ In quiet mode this will return 0 if the data can be signed, otherwise 1.`,
 		assert(signatureData != "", "--data is required")
 		data, err := bytesutil.FromHexString(signatureData)
 		errCheck(err, "Failed to parse data")
+		assert(len(signatureData) == 32, "data length must be 32 bytes")
 
 		assert(signatureVerifySignature != "", "--signature is required")
 		signatureBytes, err := bytesutil.FromHexString(signatureVerifySignature)
 		errCheck(err, "Failed to parse signature")
-		signature, err := types.BLSSignatureFromBytes(signatureBytes)
+		signature, err := e2types.BLSSignatureFromBytes(signatureBytes)
 		errCheck(err, "Invalid signature")
 
-		domain := types.Domain([]byte{0, 0, 0, 0}, []byte{0, 0, 0, 0})
-		if signatureDomain != "" {
-			domainBytes, err := bytesutil.FromHexString(signatureDomain)
-			errCheck(err, "Failed to parse domain")
-			assert(len(domainBytes) == 8, "Domain data invalid")
-		}
-
-		var pubKey types.PublicKey
+		var pubKey e2types.PublicKey
 		assert(signatureVerifyPubKey == "" || rootAccount == "", "Either --pubkey or --account should be supplied")
 		if rootAccount != "" {
 			account, err := accountFromPath(rootAccount)
@@ -60,10 +54,10 @@ In quiet mode this will return 0 if the data can be signed, otherwise 1.`,
 		} else {
 			pubKeyBytes, err := bytesutil.FromHexString(signatureVerifyPubKey)
 			errCheck(err, "Invalid public key")
-			pubKey, err = types.BLSPublicKeyFromBytes(pubKeyBytes)
+			pubKey, err = e2types.BLSPublicKeyFromBytes(pubKeyBytes)
 			errCheck(err, "Invalid public key")
 		}
-		verified := signature.Verify(data, pubKey, domain)
+		verified := signature.Verify(data, pubKey)
 		if !verified {
 			outputIf(!quiet, "Not verified")
 			os.Exit(_exit_failure)

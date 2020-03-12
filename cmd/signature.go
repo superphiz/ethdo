@@ -18,7 +18,6 @@ import (
 )
 
 var signatureData string
-var signatureDomain string
 
 // signatureCmd represents the signature command
 var signatureCmd = &cobra.Command{
@@ -34,5 +33,4 @@ func init() {
 
 func signatureFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&signatureData, "data", "", "the hex string of data")
-	cmd.Flags().StringVar(&signatureDomain, "domain", "", "the hex string of the BLS domain (defaults to 0x0000000000000000)")
 }

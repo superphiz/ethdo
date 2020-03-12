@@ -19,7 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/go-bytesutil"
-	types "github.com/wealdtech/go-eth2-wallet-types"
+	wtypes "github.com/wealdtech/go-eth2-wallet-types/v2"
 )
 
 var accountImportKey string
@@ -43,7 +43,7 @@ In quiet mode this will return 0 if the account is imported successfully, otherw
 		w, err := walletFromPath(rootAccount)
 		errCheck(err, "Failed to access wallet")
 
-		_, ok := w.(types.WalletAccountImporter)
+		_, ok := w.(wtypes.WalletAccountImporter)
 		assert(ok, fmt.Sprintf("wallets of type %q do not allow importing accounts", w.Type()))
 
 		_, err = accountFromPath(rootAccount)
@@ -55,7 +55,7 @@ In quiet mode this will return 0 if the account is imported successfully, otherw
 		_, accountName, err := walletAndAccountNamesFromPath(rootAccount)
 		errCheck(err, "Failed to obtain accout name")
 
-		account, err := w.(types.WalletAccountImporter).ImportAccount(accountName, key, []byte(rootAccountPassphrase))
+		account, err := w.(wtypes.WalletAccountImporter).ImportAccount(accountName, key, []byte(rootAccountPassphrase))
 		errCheck(err, "Failed to create account")
 
 		outputIf(verbose, fmt.Sprintf("0x%048x", account.PublicKey().Marshal()))

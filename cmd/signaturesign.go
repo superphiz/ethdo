@@ -19,7 +19,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/go-bytesutil"
-	types "github.com/wealdtech/go-eth2-types"
 )
 
 // signatureSignCmd represents the signature sign command
@@ -35,13 +34,7 @@ In quiet mode this will return 0 if the data can be signed, otherwise 1.`,
 		assert(signatureData != "", "--data is required")
 		data, err := bytesutil.FromHexString(signatureData)
 		errCheck(err, "Failed to parse data")
-
-		domain := types.Domain([]byte{0, 0, 0, 0}, []byte{0, 0, 0, 0})
-		if signatureDomain != "" {
-			domainBytes, err := bytesutil.FromHexString(signatureDomain)
-			errCheck(err, "Failed to parse domain")
-			assert(len(domainBytes) == 8, "Domain data invalid")
-		}
+		assert(len(signatureData) == 32, "data length must be 32 bytes")
 
 		assert(rootAccount != "", "--account is required")
 		account, err := accountFromPath(rootAccount)
@@ -51,7 +44,7 @@ In quiet mode this will return 0 if the data can be signed, otherwise 1.`,
 		errCheck(err, "Failed to unlock account for signing")
 		defer account.Lock()
 
-		signature, err := account.Sign(data, domain)
+		signature, err := account.Sign(data)
 		errCheck(err, "Failed to sign data")
 
 		outputIf(!quiet, fmt.Sprintf("0x%096x", signature.Marshal()))

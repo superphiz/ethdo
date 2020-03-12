@@ -18,7 +18,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	types "github.com/wealdtech/go-eth2-wallet-types"
+	wtypes "github.com/wealdtech/go-eth2-wallet-types/v2"
 )
 
 // accountKeyCmd represents the account key command
@@ -35,14 +35,14 @@ In quiet mode this will return 0 if the key can be obtained, otherwise 1.`,
 		account, err := accountFromPath(rootAccount)
 		errCheck(err, "Failed to access account")
 
-		_, ok := account.(types.AccountPrivateKeyProvider)
+		_, ok := account.(wtypes.AccountPrivateKeyProvider)
 		assert(ok, fmt.Sprintf("account %q does not provide its private key", rootAccount))
 
 		assert(rootAccountPassphrase != "", "--passphrase is required")
 		err = account.Unlock([]byte(rootAccountPassphrase))
 		errCheck(err, "Failed to unlock account to obtain private key")
 		defer account.Lock()
-		privateKey, err := account.(types.AccountPrivateKeyProvider).PrivateKey()
+		privateKey, err := account.(wtypes.AccountPrivateKeyProvider).PrivateKey()
 		errCheck(err, "Failed to obtain private key")
 		account.Lock()
 

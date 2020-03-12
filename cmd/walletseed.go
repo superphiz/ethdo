@@ -19,7 +19,7 @@ import (
 
 	bip39 "github.com/FactomProject/go-bip39"
 	"github.com/spf13/cobra"
-	types "github.com/wealdtech/go-eth2-wallet-types"
+	wtypes "github.com/wealdtech/go-eth2-wallet-types/v2"
 )
 
 var walletSeedCmd = &cobra.Command{
@@ -36,12 +36,12 @@ In quiet mode this will return 0 if the wallet is a hierarchical deterministic w
 
 		wallet, err := walletFromPath(walletWallet)
 		errCheck(err, "Failed to access wallet")
-		_, ok := wallet.(types.WalletKeyProvider)
+		_, ok := wallet.(wtypes.WalletKeyProvider)
 		assert(ok, fmt.Sprintf("wallets of type %q do not provide keys", wallet.Type()))
 
 		err = wallet.Unlock([]byte(rootWalletPassphrase))
 		errCheck(err, "Failed to unlock wallet")
-		seed, err := wallet.(types.WalletKeyProvider).Key()
+		seed, err := wallet.(wtypes.WalletKeyProvider).Key()
 		errCheck(err, "Failed to obtain wallet key")
 		outputIf(debug, fmt.Sprintf("Seed is %#0x", seed))
 		seedStr, err := bip39.NewMnemonic(seed)
