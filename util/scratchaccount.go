@@ -17,18 +17,18 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	types "github.com/wealdtech/go-eth2-types/v2"
+	e2types "github.com/wealdtech/go-eth2-types/v2"
 )
 
 // ScratchAccount is an account that exists temporarily.
 type ScratchAccount struct {
 	id     uuid.UUID
-	pubKey types.PublicKey
+	pubKey e2types.PublicKey
 }
 
 // NewScratchAccount creates a new local account.
 func NewScratchAccount(pubKey []byte) (*ScratchAccount, error) {
-	key, err := types.BLSPublicKeyFromBytes(pubKey)
+	key, err := e2types.BLSPublicKeyFromBytes(pubKey)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (a *ScratchAccount) Name() string {
 	return "scratch"
 }
 
-func (a *ScratchAccount) PublicKey() types.PublicKey {
+func (a *ScratchAccount) PublicKey() e2types.PublicKey {
 	return a.pubKey
 }
 
@@ -66,6 +66,6 @@ func (a *ScratchAccount) IsUnlocked() bool {
 	return false
 }
 
-func (a *ScratchAccount) Sign(data []byte) (types.Signature, error) {
+func (a *ScratchAccount) Sign(data []byte) (e2types.Signature, error) {
 	return nil, errors.New("Not implemented")
 }
